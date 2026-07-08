@@ -119,33 +119,7 @@ class ROHandNode(Node):
             index = -1
 
         if index >= 0:
-            # Set speed
-            values = []
-
-            for i in range(len(msg.velocity)):
-                values.append(int(msg.velocity[i]))
-
-            err_occurred = False
-            self.bus_mutex.acquire()
-
-            #try:
-            #    wr = self.modbus_client_.write_registers(address=ROH_FINGER_SPEED0, values=values, slave=hand_id)
-            #except Exception as exc:
-            #    err_occurred = True
-            #    self.get_logger().error(f"ERROR: exception in pymodbus, {exc}")
-            #    # raise exc
-
-            #self.bus_mutex.release()
-
-            #if err_occurred:
-            #    return
-
-            #if wr.isError():
-            #    self.get_logger().error(f"ERROR: pymodbus write_register returned an error: ({wr})")
-            #    # raise ModbusException(txt)
-            #    return
-
-            # 设置目标位置
+            # 设置目标位置（角度值 * 100 → 寄存器值）
             values = []
 
             for i in range(len(msg.position)):
@@ -153,7 +127,6 @@ class ROHandNode(Node):
                 if value < 0:
                     value += 65536
                 values.append(value)
-
 
             err_occurred = False
             self.bus_mutex.acquire()
