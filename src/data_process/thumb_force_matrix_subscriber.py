@@ -34,7 +34,7 @@ RIGHT_THUMB_INDEX_MATRIX: tuple[tuple[int, ...], ...] = (
     (0, 0, 32, 0, 34, 0, 0),
 )
 
-# 按实际拇指点阵排序：上下翻转、去除多余点位，形成 6×5 矩阵。
+# 按实际拇指点阵排序：上下翻转、去除多余点位，形成统一的 12×5 矩阵。
 # 数字 n 仍表示原始 data[n - 1]，0 表示没有传感器位置。
 RIGHT_THUMB_CNN_INDEX_MATRIX: tuple[tuple[int, ...], ...] = (
     (0, 32, 34, 0, 0),
@@ -43,6 +43,12 @@ RIGHT_THUMB_CNN_INDEX_MATRIX: tuple[tuple[int, ...], ...] = (
     (11, 12, 13, 14, 15),
     (6, 7, 8, 9, 10),
     (1, 2, 3, 4, 5),
+    (0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0),
+    (0, 0, 0, 0, 0),
 )
 
 # 食指原始点位索引矩阵，来源于 RIGHT_FORCE_POINT。
@@ -140,7 +146,7 @@ def build_force_matrix(
 
 
 def build_thumb_force_matrix(values: Sequence[float]) -> list[list[float]]:
-    """按照实际拇指传感器位置，将一维力值转换为 6×5 矩阵。"""
+    """按照实际拇指传感器位置，将一维力值转换为 12×5 矩阵。"""
     return build_force_matrix(values, RIGHT_THUMB_CNN_INDEX_MATRIX)
 
 
@@ -184,7 +190,7 @@ class ThumbForceMatrixSubscriber(Node):
         )
         # 使用 ANSI 控制符刷新当前位置，避免矩阵持续向下滚动。
         output = "\033[2J\033[H"
-        output += "拇指 CNN 力矩阵 (6×5):\n"
+        output += "拇指 CNN 力矩阵 (12×5):\n"
         output += pformat(thumb_matrix, width=100, sort_dicts=False) + "\n\n"
         output += "食指 CNN 力矩阵 (12×5):\n"
         output += pformat(index_matrix, width=100, sort_dicts=False) + "\n\n"
