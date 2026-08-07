@@ -135,8 +135,8 @@ class ROHandNode(Node):
         # All Modbus transactions run in the default single-threaded ROS
         # executor. This keeps one client and one serial port transaction at a
         # time, without sharing /dev/ttyUSB0 between processes or threads.
-        self.joint_timer_ = self.create_timer(1.0 / 30.0, self._publish_joint_states)
-        self.force_timer_ = self.create_timer(1.0 / 10.0, self._publish_force)
+        self.joint_timer_ = self.create_timer(1.0 / 100.0, self._publish_joint_states)
+        self.force_timer_ = self.create_timer(1.0 / 100.0, self._publish_force)
 
 
     def _joint_states_callback(self, msg):
