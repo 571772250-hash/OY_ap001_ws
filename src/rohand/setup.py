@@ -29,7 +29,7 @@ setup(
             'rohand_can_serial_ap001 = scripts.roh_ap001_node.rohand_can_serial:main',
             'rohand_modbus_ap001 = scripts.roh_ap001_node.rohand_modbus:main',
             'rohand_modbus_with_matrix_ap001 = '
-            'scripts.roh_ap001_node.rohand_modbus_with_matrix:main',
+            'rohand.roh_ap001_node.rohand_modbus_with_matrix:main',
             'rohand_serial_ap001 = scripts.roh_ap001_node.rohand_serial:main',
             'rohand_teleop_a001 = scripts.roh_a001_node.rohand_teleop:main',
             'rohand_can_serial_a001 = scripts.roh_a001_node.rohand_can_serial:main',

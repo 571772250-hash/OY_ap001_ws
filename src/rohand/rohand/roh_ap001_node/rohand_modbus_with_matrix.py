@@ -29,7 +29,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.parameter import Parameter
 from sensor_msgs.msg import JointState
-from std_msgs.msg import Float32MultiArray
+from std_msgs.msg import Float32MultiArray, MultiArrayDimension
 
 #from pymodbus import FramerType
 from pymodbus.client import ModbusSerialClient
@@ -43,6 +43,8 @@ from common.heat_map_dot import HeatMapDot
 FRAME_ID_PREFIX = 'rohand_'
 # ROH-AP001 hardware type
 ROH_HARDWARE_TYPE = 0x2001
+FORCE_MATRIX_GROUPS = 6
+FORCE_MATRIX_WIDTH = 60
 
 
 class ROHandNode(Node):
@@ -71,6 +73,9 @@ class ROHandNode(Node):
         # 创建并初始化发布者成员属性pub_joint_states_
         self.joint_states_publisher_ = self.create_publisher(msg_type=JointState, topic="~/current_joint_states", qos_profile=10)
         self.force_publisher_ = self.create_publisher(Float32MultiArray, "~/force", 10)
+        self.force_matrix_publisher_ = self.create_publisher(
+            Float32MultiArray, "~/force_matrix", 10
+        )
 
         # Initialize modbus
         # A short timeout prevents an unavailable force register from blocking
@@ -242,6 +247,28 @@ class ROHandNode(Node):
         force_msg = Float32MultiArray()
         force_msg.data = finger_force_sum
         self.force_publisher_.publish(force_msg)
+
+        # 发布固定 6×60 的点阵力矩阵，不足部分使用 0 填充。
+        force_matrix_msg = Float32MultiArray()
+        force_matrix_msg.layout.dim = [
+            MultiArrayDimension(
+                label="sensor_group",
+                size=FORCE_MATRIX_GROUPS,
+                stride=FORCE_MATRIX_GROUPS * FORCE_MATRIX_WIDTH,
+            ),
+            MultiArrayDimension(
+                label="dot_index",
+                size=FORCE_MATRIX_WIDTH,
+                stride=FORCE_MATRIX_WIDTH,
+            ),
+        ]
+        force_matrix_msg.layout.data_offset = 0
+        force_matrix_msg.data = []
+        for values in finger_force:
+            padded_values = values[:FORCE_MATRIX_WIDTH]
+            padded_values.extend([0.0] * (FORCE_MATRIX_WIDTH - len(padded_values)))
+            force_matrix_msg.data.extend(float(value) for value in padded_values)
+        self.force_matrix_publisher_.publish(force_matrix_msg)
 
         try:
             force_chart.update_heatmap(finger_force, self.heatmap_dot_)
